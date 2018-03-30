@@ -55,7 +55,6 @@ class Gen_Model():
                 pass
         lg.logger_model.info('******************')
 
-
     def viewLayers(self):
         layers = self.model.layers
         for i, l in enumerate(layers):

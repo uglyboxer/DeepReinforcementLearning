@@ -15,7 +15,7 @@ def playMatchesBetweenVersions(env, run_version, player1version, player2version,
     if player1version == -1:
         player1 = User('player1', env.state_size, env.action_size)
     else:
-        player1_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, env.input_shape,   env.action_size, config.HIDDEN_CNN_LAYERS)
+        player1_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, env.input_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
 
         if player1version > 0:
             player1_network = player1_NN.read(env.name, run_version, player1version)
