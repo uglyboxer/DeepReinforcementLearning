@@ -108,3 +108,6 @@ run_archive/
 code_archive/
 games/archive/
 *.pyc
+run/
+.sublime-project
+.DS_Store
