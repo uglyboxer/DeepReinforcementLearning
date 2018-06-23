@@ -1,8 +1,7 @@
-import numpy as np
 import logging
 import config
 
-from utils import setup_logger
+import numpy as np
 import loggers as lg
 
 
@@ -15,10 +14,10 @@ class Node():
         self.edges = []
 
     def isLeaf(self):
-        if len(self.edges) > 0:
+        if self.edges:
             return False
-        else:
-            return True
+        return True
+
 
 class Edge():
 
@@ -109,8 +108,6 @@ class MCTS():
         lg.logger_mcts.info('DONE...%d', done)
 
         return currentNode, value, done, breadcrumbs
-
-
 
     def backFill(self, leaf, value, breadcrumbs):
         lg.logger_mcts.info('------DOING BACKFILL------')

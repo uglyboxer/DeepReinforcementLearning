@@ -1,0 +1,16 @@
+{
+	"folders":
+	[
+		{
+			"path": "/Users/cole-home/repos/DeepReinforcementLearning/"
+		}
+	],
+    "settings": {
+        // ...
+        "python_interpreter": "/Users/cole-home/.virtualenvs/DRL/bin/python3.6",
+
+        "python_package_paths": [
+            "/Users/cole-home/.virtualenvs/DRL/lib/python3.6/site-packages"
+        ]
+    }
+}
