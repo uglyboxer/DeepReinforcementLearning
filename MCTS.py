@@ -8,6 +8,9 @@ import loggers as lg
 class Node():
 
     def __init__(self, state):
+        print(state)
+
+        print(state.id)
         self.state = state
         self.playerTurn = state.playerTurn
         self.id = state.id
@@ -50,7 +53,6 @@ class MCTS():
     def moveToLeaf(self):
 
         lg.logger_mcts.info('------MOVING TO LEAF------')
-
         breadcrumbs = []
         currentNode = self.root
 
@@ -93,7 +95,6 @@ class MCTS():
                                     np.round(Q, 6),
                                     np.round(U, 6),
                                     np.round(Q+U, 6))
-
                 if Q + U > maxQU:
                     maxQU = Q + U
                     simulationAction = action
@@ -113,7 +114,6 @@ class MCTS():
         lg.logger_mcts.info('------DOING BACKFILL------')
 
         currentPlayer = leaf.state.playerTurn
-
         for edge in breadcrumbs:
             playerTurn = edge.playerTurn
             if playerTurn == currentPlayer:

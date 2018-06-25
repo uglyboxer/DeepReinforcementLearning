@@ -212,7 +212,6 @@ class GameState():
 
 		value = 0
 		done = 0
-
 		if newState.isEndGame:
 			value = newState.value[0]
 			done = 1

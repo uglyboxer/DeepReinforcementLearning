@@ -81,7 +81,7 @@ class Agent():
 
         # ### get action values
         pi, values = self.getAV(1)
-
+        print(pi, values)
         # ###pick the action
         action, value = self.chooseAction(pi, values, tau)
 
@@ -122,7 +122,6 @@ class Agent():
     def evaluateLeaf(self, leaf, value, done, breadcrumbs):
 
         lg.logger_mcts.info('------EVALUATING LEAF------')
-
         if done == 0:
 
             value, probs, allowedActions = self.get_preds(leaf.state)
@@ -154,9 +153,10 @@ class Agent():
         values = np.zeros(self.action_size, dtype=np.float32)
 
         for action, edge in edges:
+            print('edge: ', edge.stats)
             pi[action] = pow(edge.stats['N'], 1/tau)
             values[action] = edge.stats['Q']
-
+        print('pi = ', pi)
         pi = pi / (np.sum(pi) * 1.0)
         return pi, values
 
