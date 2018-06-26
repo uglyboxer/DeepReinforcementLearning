@@ -121,7 +121,12 @@ class Board(object):
             state  np.array  stack of 7 tuples (player, board positions 1's for b, -1's for w)
                                       
         '''
-        self.playerTurn = state[6][0]
+        self.history = state
+        try:
+            self.playerTurn = state[6][0]
+        except IndexError:
+            print(self.playerTurn, state)
+            raise NotImplementedError 
         for idx, row in enumerate(state[6][1]):
             for idy, player_val in enumerate(row):
                 # TODO does it matter if this is out of order?

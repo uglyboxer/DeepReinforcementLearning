@@ -80,7 +80,6 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
 
         while done == 0:
             turn = turn + 1
-    
             #### Run the MCTS algo and return an action
             if turn < turns_until_tau0:
                 action, pi, MCTS_value, NN_value = players[state.playerTurn]['agent'].act(state, 1)

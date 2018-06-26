@@ -69,7 +69,7 @@ plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shape
 print('\n')
 
 ######## CREATE THE PLAYERS ########
-
+print(env.action_size, env.state_size)
 current_player = Agent('current_player', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, current_NN)
 best_player = Agent('best_player', env.state_size, env.action_size, config.MCTS_SIMS, config.CPUCT, best_NN)
 #user_player = User('player1', env.state_size, env.action_size)

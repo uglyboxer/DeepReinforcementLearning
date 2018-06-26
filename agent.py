@@ -50,7 +50,7 @@ class Agent():
         self.val_policy_loss = []
 
     def simulate(self):
-
+        print('root edges :', self.mcts.root.edges)
         lg.logger_mcts.info('ROOT NODE...%s', self.mcts.root.state.id)
         self.mcts.root.state.render(lg.logger_mcts)
         lg.logger_mcts.info('CURRENT PLAYER...%d', self.mcts.root.state.playerTurn)
@@ -123,7 +123,6 @@ class Agent():
 
         lg.logger_mcts.info('------EVALUATING LEAF------')
         if done == 0:
-
             value, probs, allowedActions = self.get_preds(leaf.state)
             lg.logger_mcts.info('PREDICTED VALUE FOR %d: %f', leaf.state.playerTurn, value)
 
@@ -138,7 +137,7 @@ class Agent():
                 else:
                     node = self.mcts.tree[newState.id]
                     lg.logger_mcts.info('existing node...%s...', node.id)
-
+                print('probs :', probs[idx], action)
                 newEdge = mc.Edge(leaf, node, probs[idx], action)
                 leaf.edges.append((action, newEdge))
 
@@ -151,12 +150,10 @@ class Agent():
         edges = self.mcts.root.edges
         pi = np.zeros(self.action_size, dtype=np.integer)
         values = np.zeros(self.action_size, dtype=np.float32)
-
+        print('edges here :', len(edges))
         for action, edge in edges:
-            print('edge: ', edge.stats)
             pi[action] = pow(edge.stats['N'], 1/tau)
             values[action] = edge.stats['Q']
-        print('pi = ', pi)
         pi = pi / (np.sum(pi) * 1.0)
         return pi, values
 

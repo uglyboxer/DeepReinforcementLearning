@@ -4,12 +4,12 @@
 # MEMORY_SIZE = 30000
 
 EPISODES = 75
-MCTS_SIMS = 1
+MCTS_SIMS = 5
 # MCTS_SIMS = 100
 MEMORY_SIZE = 90000
 
-TURNS_UNTIL_TAU0 = 2  # turn on which it starts playing deterministically
-# TURNS_UNTIL_TAU0 = 10  # turn on which it starts playing deterministically
+# TURNS_UNTIL_TAU0 = 2  # turn on which it starts playing deterministically
+TURNS_UNTIL_TAU0 = 10  # turn on which it starts playing deterministically
 CPUCT = 1
 EPSILON = 0.2
 ALPHA = 0.8

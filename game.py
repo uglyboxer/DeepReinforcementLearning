@@ -34,7 +34,7 @@ class Game:
     def identities(self, state, actionValues):
         identities = [(state,actionValues)]
 
-        currentBoard = state.board
+        currentBoard = state.history
         currentAV = actionValues
 
         # currentBoard = np.array([
@@ -55,7 +55,7 @@ class Game:
         #     , currentAV[41], currentAV[40],currentAV[39], currentAV[38], currentAV[37], currentAV[36], currentAV[35]
         #             ])
 
-        identities.append((GameState(currentBoard, state.playerTurn), currentAV))
+        identities.append((Board(currentBoard, state.playerTurn), currentAV))
 
         return identities
 

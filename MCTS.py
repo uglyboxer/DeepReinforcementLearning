@@ -112,7 +112,6 @@ class MCTS():
 
     def backFill(self, leaf, value, breadcrumbs):
         lg.logger_mcts.info('------DOING BACKFILL------')
-
         currentPlayer = leaf.state.playerTurn
         for edge in breadcrumbs:
             playerTurn = edge.playerTurn
