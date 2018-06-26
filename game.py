@@ -30,7 +30,6 @@ class Game:
         info = None
         return (next_state, value, done, info)
 
-
     def identities(self, state, actionValues):
         identities = [(state,actionValues)]
 
@@ -55,7 +54,7 @@ class Game:
         #     , currentAV[41], currentAV[40],currentAV[39], currentAV[38], currentAV[37], currentAV[36], currentAV[35]
         #             ])
 
-        identities.append((Board(currentBoard, state.playerTurn), currentAV))
+        identities.append((Board(state.board_size, currentBoard, state.playerTurn), currentAV))
 
         return identities
 

@@ -8,6 +8,7 @@ from zobrist import Zobrist
 class Board(object):
 
     def __init__(self, board_size, state=None, playerTurn=None):
+        self.pieces = {'1': 'X', '0': '-', '-1': 'O'}
         self.playerTurn = playerTurn or 1
         self.board_size = board_size
         self.dragons = {}
