@@ -8,9 +8,7 @@ import loggers as lg
 class Node():
 
     def __init__(self, state):
-        print(state)
 
-        print(state.id)
         self.state = state
         self.playerTurn = state.playerTurn
         self.id = state.id
@@ -79,9 +77,9 @@ class MCTS():
             for idx, (action, edge) in enumerate(currentNode.edges):
 
                 U = self.cpuct * \
-                    ((1-epsilon) * edge.stats['P'] + epsilon * nu[idx])  *\
+                    ((1-epsilon) * edge.stats['P'] + epsilon * nu[idx]) *\
                     np.sqrt(Nb) / (1 + edge.stats['N'])
-  
+
                 Q = edge.stats['Q']
 
                 lg.logger_mcts.info('action: %d (%d)... N = %d, P = %f, nu = %f, adjP = %f, W = %f, Q = %f, U = %f, Q+U = %f',
@@ -101,8 +99,8 @@ class MCTS():
                     simulationEdge = edge
 
             lg.logger_mcts.info('action with highest Q + U...%d', simulationAction)
-
-            newState, value, done = currentNode.state.takeAction(simulationAction) #the value of the newState from the POV of the new playerTurn
+            print(simulationAction)
+            newState, value, done = currentNode.state.takeAction(simulationAction)  #the value of the newState from the POV of the new playerTurn
             currentNode = simulationEdge.outNode
             breadcrumbs.append(simulationEdge)
 

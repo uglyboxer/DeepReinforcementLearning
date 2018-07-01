@@ -1,4 +1,5 @@
 from collections import deque
+from copy import deepcopy
 
 import numpy as np
 
@@ -8,14 +9,17 @@ from zobrist import Zobrist
 class Board(object):
 
     def __init__(self, board_size, state=None, playerTurn=None):
+        if not playerTurn:
+            raise NotImplementedError
         self.pieces = {'1': 'X', '0': '-', '-1': 'O'}
-        self.playerTurn = playerTurn or 1
+        self.playerTurn = playerTurn
         self.board_size = board_size
+        self.PASS_INDEX = self.board_size ** 2
         self.dragons = {}
         self.z_table = set()
         self.zobrist = Zobrist(self.board_size)
         self.positions = [[Position(x, y, self.board_size) for y in range(self.board_size)] for x in range(self.board_size)]
-        self.action_space = np.array([[0 for y in range(self.board_size)] for x in range(self.board_size)]).flatten()
+        self.action_space = self.set_action_space()
         self.captures = {1: 0, -1: 0}
         self.passes = [False, False]
         self.history = deque([], maxlen=7)
@@ -37,6 +41,11 @@ class Board(object):
             return 1
         return max(self.dragons.keys()) + 1
 
+    def set_action_space(self):
+        rv = [0 for y in range(self.board_size) for x in range(self.board_size)]
+        rv.append(0)  # for pass
+        return np.array(rv)
+
     def switch_player(self):
         self.playerTurn = self.playerTurn * -1
 
@@ -52,9 +61,10 @@ class Board(object):
             self.history.append(((-1) ** i, state))
 
     def _checkForEndGame(self):
+        print('checking for end')
         score = 0
         if np.array(self.passes).all():
-            score = self.score()
+            score = self._score()
 
         if score == self.playerTurn:
             return 1
@@ -65,9 +75,10 @@ class Board(object):
         # i.e. if the previous player played a winning move, you lose
         score = 0
         if np.array(self.passes).all():
-            score = self.score()
-
+            score = self._score()
+            print('score is ----------->', score)
         if score == -1 * self.playerTurn:
+            print('other guy won')
             return (-1, -1, 1)
         return (0, 0, 0)
 
@@ -82,15 +93,15 @@ class Board(object):
             for y, val in enumerate(row):
                 if val.player == self.playerTurn:
                     currentplayer_position[x][y] = 1
-                elif val.player == -self.playerTurn:
+                elif val.player == (-1) * self.playerTurn:
                     other_position[x][y] = 1
 
         currentplayer_position = currentplayer_position.flatten()
         other_position = other_position.flatten()
 
-        position = np.append(currentplayer_position,other_position)
+        position = np.append(currentplayer_position, other_position)
 
-        return (position)
+        return position
 
     def _convertStateToId(self):
         currentplayer_position = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
@@ -99,18 +110,26 @@ class Board(object):
             for y, val in enumerate(row):
                 if val.player == self.playerTurn:
                     currentplayer_position[x][y] = 1
-                elif val.player == -self.playerTurn:
+                elif val.player == (-1) * self.playerTurn:
                     other_position[x][y] = 1
 
         currentplayer_position = currentplayer_position.flatten()
         other_position = other_position.flatten()
+        # TODO This is broken.  And should the id be from player1 or player2 or current vs other
+        if self.passes[0]:
+            np.append(currentplayer_position, 1)
+        else:
+            np.append(currentplayer_position, 0)
+        if self.passes[1]:
+            np.append(other_position, 1)
+        else:
+            np.append(other_position, 0)
 
-        position = np.append(currentplayer_position,other_position)
+        position = np.append(currentplayer_position, other_position)
 
-        _id = ''.join(map(str,position))
+        _id = ''.join(map(str, position))
 
-        return _id  
-
+        return _id
 
     def _generate_from_state(self, state):
         '''
@@ -120,13 +139,12 @@ class Board(object):
 
         Args:
             state  np.array  stack of 7 tuples (player, board positions 1's for b, -1's for w)
-                                      
+
         '''
         self.history = state
         try:
-            self.playerTurn = state[6][0]
+            self.playerTurn = (-1) * state[6][0]
         except IndexError:
-            print(self.playerTurn, state)
             raise NotImplementedError 
         for idx, row in enumerate(state[6][1]):
             for idy, player_val in enumerate(row):
@@ -186,6 +204,8 @@ class Board(object):
 
         self.z_table.add(rv['zhash'])
         self.update_history()
+        self.switch_player()
+        self.allowedActions = self._allowedActions()
         self.id = self._convertStateToId()
         return result
 
@@ -195,7 +215,9 @@ class Board(object):
         value = 0
         result = self.act(loc)
         if result['complete']:
-            winner = self.score()
+            self.value = self._getValue()
+            self.score = self._getScore()
+            winner = self._score()
             if winner == self.playerTurn:
                 value = 1
             else:
@@ -203,21 +225,55 @@ class Board(object):
             done = True
         return self, value, done
 
+    def player_pass(self):
+        done = False
+        value = 0
+        self.update_history()
+        if self.playerTurn == 1:
+            self.passes[0] = True
+        else:
+            self.passes[1] = True
+        if self.passes[0] and self.passes[1]:
+            winner = self._score()
+            if winner == self.playerTurn:
+                value = -1
+            else:
+                value = 0
+            done = True
+            self.switch_player()
+            allowed_actions = []
+        else:
+            self.switch_player()
+            allowed_actions = self._allowedActions()
+        self.value = self._getValue()
+        self.score = self._getScore()
+        self.id = self._convertStateToId()
+        self.allowedActions = allowed_actions 
+        return self, value, done
+
     def takeAction(self, flat_array_index):
-        loc = (flat_array_index // self.board_size, flat_array_index % self.board_size)
-        newState = Board(self.board_size, state=self.history, playerTurn=-self.playerTurn)
-        res = newState.take_action(loc)
-        return res 
+        if flat_array_index != self.PASS_INDEX:
+            loc = (flat_array_index // self.board_size, flat_array_index % self.board_size)
+            # newState = Board(self.board_size, state=self.history.copy(), playerTurn=self.playerTurn)
+            newState = deepcopy(self)
+            res = newState.take_action(loc)
+        else:
+            newState = deepcopy(self)
+            res = newState.player_pass()
+
+        return res
 
     def add_up_score(self, player, dragons):
         for d in dragons:
             self.captures[player] += len(d.members)
 
-    def score(self):
+    def _score(self):
         rv = self.set_empty_dragons()
         for x in [-1, 1]:
             self.add_up_score(x, rv[x])
         caps = [self.captures[-1], -100000, self.captures[1]]
+        if caps[0] == caps[2]:
+            return -1
         return caps.index(max(caps)) - 1  # Okay this is embarassing hack.  sorry
 
     def allowed_plays(self, for_player):
@@ -236,7 +292,10 @@ class Board(object):
         return allowed
 
     def _allowedActions(self):
-        return [(x * self.board_size) + y for x, y in self.allowed_plays(self.playerTurn)]
+        legal = [(x * self.board_size) + y for x, y in self.allowed_plays(self.playerTurn)]
+        legal.append(self.PASS_INDEX)
+        print(legal)
+        return np.array(legal)
 
     def imagine_zobrist(self, pos, captures, player):
         board = self.fake_board(pos, captures, player)
@@ -289,8 +348,6 @@ class Board(object):
         for x in neighbors:
             if x.dragon and x.player == player:
                 rv.add(self.dragons[x.dragon])
-        if player == 0:
-            print(rv)
         return rv
 
     def get_opposing_player(self, player):

@@ -9,7 +9,7 @@ class Game:
     def __init__(self):     
         self.currentPlayer = 1
         self.board_size = 5
-        self.gameState = Board(board_size=self.board_size)
+        self.gameState = Board(board_size=self.board_size, playerTurn=-1)
         self.actionSpace = self.gameState.action_space
         self.pieces = {'1':'X', '0': '-', '-1':'O'}
         self.grid_shape = (self.gameState.board_size, self.gameState.board_size)
@@ -19,7 +19,7 @@ class Game:
         self.action_size = len(self.actionSpace)
 
     def reset(self):
-        self.gameState = Board(self.board_size)
+        self.gameState = Board(self.board_size, playerTurn=1)
         self.currentPlayer = 1
         return self.gameState
 
@@ -31,7 +31,7 @@ class Game:
         return (next_state, value, done, info)
 
     def identities(self, state, actionValues):
-        identities = [(state,actionValues)]
+        identities = [(state, actionValues)]
 
         currentBoard = state.history
         currentAV = actionValues
