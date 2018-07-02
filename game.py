@@ -8,7 +8,7 @@ class Game:
 
     def __init__(self):     
         self.currentPlayer = 1
-        self.board_size = 5
+        self.board_size = 4
         self.gameState = Board(board_size=self.board_size, playerTurn=-1)
         self.actionSpace = self.gameState.action_space
         self.pieces = {'1':'X', '0': '-', '-1':'O'}
@@ -27,6 +27,7 @@ class Game:
         next_state, value, done = self.gameState.takeAction(action)
         self.gameState = next_state
         self.currentPlayer = -self.currentPlayer
+        print('players match: ', self.currentPlayer, self.gameState.playerTurn)
         info = None
         return (next_state, value, done, info)
 

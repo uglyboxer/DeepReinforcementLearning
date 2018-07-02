@@ -50,7 +50,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
         logger.info('EPISODE %d OF %d', e+1, EPISODES)
         logger.info('====================')
 
-        print (str(e+1) + ' ', end='')
+        print('episode: ' + str(e+1) + ' ', end='')
 
         state = env.reset()
         
@@ -85,7 +85,6 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
                 action, pi, MCTS_value, NN_value = players[state.playerTurn]['agent'].act(state, 1)
             else:
                 action, pi, MCTS_value, NN_value = players[state.playerTurn]['agent'].act(state, 0)
-
             if memory != None:
                 ####Commit the move to memory
                 memory.commit_stmemory(env.identities, state, pi)

@@ -21,7 +21,7 @@ class Board(object):
         self.positions = [[Position(x, y, self.board_size) for y in range(self.board_size)] for x in range(self.board_size)]
         self.action_space = self.set_action_space()
         self.captures = {1: 0, -1: 0}
-        self.passes = [False, False]
+        self.passes = {1: False, -1: False}
         self.history = deque([], maxlen=7)
         if state:
             self._generate_from_state(state)
@@ -61,12 +61,11 @@ class Board(object):
             self.history.append(((-1) ** i, state))
 
     def _checkForEndGame(self):
-        print('checking for end')
         score = 0
-        if np.array(self.passes).all():
-            score = self._score()
+        if np.array(list(self.passes.values())).all():
+        #     score = self._score()
 
-        if score == self.playerTurn:
+        # if score == self.playerTurn:
             return 1
         return 0
 
@@ -76,10 +75,11 @@ class Board(object):
         score = 0
         if np.array(self.passes).all():
             score = self._score()
-            print('score is ----------->', score)
-        if score == -1 * self.playerTurn:
-            print('other guy won')
-            return (-1, -1, 1)
+            # print('score is ----------->', score)
+            if score == -1 * self.playerTurn:
+                return (-1, -1, 1)
+            else:
+                return (-1, 1, -1)
         return (0, 0, 0)
 
     def _getScore(self):
@@ -115,15 +115,18 @@ class Board(object):
 
         currentplayer_position = currentplayer_position.flatten()
         other_position = other_position.flatten()
-        # TODO This is broken.  And should the id be from player1 or player2 or current vs other
-        if self.passes[0]:
-            np.append(currentplayer_position, 1)
+        if self.passes[self.playerTurn]:
+            currentplayer_position = np.append(currentplayer_position, 1)
+            other_position = np.append(other_position, 1)
         else:
-            np.append(currentplayer_position, 0)
-        if self.passes[1]:
-            np.append(other_position, 1)
+            currentplayer_position = np.append(currentplayer_position, 0)
+            other_position = np.append(other_position, 0)
+        if self.passes[-1 * self.playerTurn]:
+            other_position = np.append(other_position, 1)
+            currentplayer_position = np.append(currentplayer_position, 1)
         else:
-            np.append(other_position, 0)
+            other_position = np.append(other_position, 0)
+            currentplayer_position = np.append(currentplayer_position, 0)
 
         position = np.append(currentplayer_position, other_position)
 
@@ -173,95 +176,92 @@ class Board(object):
         self.history.append((self.playerTurn, np.array(state)))
 
     def act(self, loc):
-        result = {'complete': False,
-                  'valid': True,
+        result = {'valid': True,
                   'captures': {1: 0, -1: 0}}
         pos = self.pos_by_location(loc)
         rv = self.imagine_position(pos, self.playerTurn)
         if rv['occupied'] or rv['suicide'] or rv['repeat']:
             result['valid'] = False
-            return result
-        friendly_dragons = list(rv['stitched'])
-        touched_dragons = set()
-        pos.occupy(self.playerTurn)
-        if not friendly_dragons:
-            dragon_id = self.create_new_dragon()
-            self.dragons[dragon_id].add_member(pos)
-            touched_dragons.add(self.dragons[dragon_id])
         else:
-            base_dragon = friendly_dragons[0]
-            base_dragon.add_member(pos)
-            for dragon in friendly_dragons[1:]:
-                self.stitch_dragons(base_dragon.identifier, dragon.identifier)
-            touched_dragons.add(base_dragon)
-        if rv['captured']:
-            for dragon in rv['captured']:
-                result['captures'][self.playerTurn] += self.capture_dragon(dragon.identifier)
+            friendly_dragons = list(rv['stitched'])
+            touched_dragons = set()
+            pos.occupy(self.playerTurn)
+            if not friendly_dragons:
+                dragon_id = self.create_new_dragon()
+                self.dragons[dragon_id].add_member(pos)
+                touched_dragons.add(self.dragons[dragon_id])
+            else:
+                base_dragon = friendly_dragons[0]
+                base_dragon.add_member(pos)
+                for dragon in friendly_dragons[1:]:
+                    self.stitch_dragons(base_dragon.identifier, dragon.identifier)
+                touched_dragons.add(base_dragon)
+            if rv['captured']:
+                for dragon in rv['captured']:
+                    result['captures'][self.playerTurn] += self.capture_dragon(dragon.identifier)
 
-        touched_dragons.update(rv['opp_neighbor'])
-        for dragon in touched_dragons:
-            dragon.update()
+            touched_dragons.update(rv['opp_neighbor'])
+            for dragon in touched_dragons:
+                dragon.update()
 
+        self.passes = {1: False, -1: False}
         self.z_table.add(rv['zhash'])
         self.update_history()
+        self.id = self._convertStateToId()
         self.switch_player()
         self.allowedActions = self._allowedActions()
-        self.id = self._convertStateToId()
         return result
 
     def take_action(self, loc):
         """ Wrapper for act for DRL to use """
-        done = False
+        done = 0
         value = 0
-        result = self.act(loc)
-        if result['complete']:
-            self.value = self._getValue()
-            self.score = self._getScore()
-            winner = self._score()
-            if winner == self.playerTurn:
-                value = 1
-            else:
-                value = 0
-            done = True
-        return self, value, done
+        self.act(loc)
+        return value, done
 
     def player_pass(self):
-        done = False
+        done = 0
         value = 0
         self.update_history()
-        if self.playerTurn == 1:
-            self.passes[0] = True
-        else:
-            self.passes[1] = True
-        if self.passes[0] and self.passes[1]:
+        self.passes[self.playerTurn] = True
+        self.id = self._convertStateToId()
+        self.switch_player()
+        if self.passes[-1] and self.passes[1]:
             winner = self._score()
-            if winner == self.playerTurn:
-                value = -1
+            if winner == -1 * self.playerTurn:
+                value = 1
             else:
-                value = 0
-            done = True
-            self.switch_player()
+                value = -1
+            done = 1
             allowed_actions = []
         else:
-            self.switch_player()
             allowed_actions = self._allowedActions()
         self.value = self._getValue()
         self.score = self._getScore()
-        self.id = self._convertStateToId()
-        self.allowedActions = allowed_actions 
-        return self, value, done
+        self.allowedActions = allowed_actions
+        print(self.to_ascii())
+
+        return value, done
 
     def takeAction(self, flat_array_index):
+        newState = deepcopy(self)
         if flat_array_index != self.PASS_INDEX:
             loc = (flat_array_index // self.board_size, flat_array_index % self.board_size)
-            # newState = Board(self.board_size, state=self.history.copy(), playerTurn=self.playerTurn)
-            newState = deepcopy(self)
-            res = newState.take_action(loc)
+            value, done = newState.take_action(loc)
         else:
-            newState = deepcopy(self)
-            res = newState.player_pass()
+            value, done = newState.player_pass()
 
-        return res
+        if newState._checkForEndGame() == 1:
+            newState.value = newState._getValue()
+            newState.score = newState._getScore()
+            winner = newState._score()
+            if winner == newState.playerTurn:
+                value = 1
+            else:
+                value = -1
+            done = 1
+
+        return newState, value, done 
 
     def add_up_score(self, player, dragons):
         for d in dragons:
@@ -464,13 +464,21 @@ class Board(object):
                     rv['all_dragons'].add(d1.identifier)
                     for d in n_dragons[1:]:
                         self.stitch_dragons(d1.identifier, d.identifier)
+                    dragon = d1
                 else:
                     dragon_id = self.create_new_dragon()
                     dragon = self.dragons[dragon_id]
                     rv['all_dragons'].add(dragon.identifier)
                     dragon.add_member(pos1)
             else:
-                dragon = self.dragons[pos1.dragon]
+                try:
+                    dragon = self.dragons[pos1.dragon]
+                except KeyError:
+                    print(self.dragons)
+                    print(pos1.dragon)
+                    print(pos1)
+                    print(self.to_ascii())
+                    raise NotImplementedError
             for pos2 in empty:
                 if pos1 == pos2:
                     continue
@@ -478,7 +486,13 @@ class Board(object):
                     dragon.add_member(pos2)
 
         for d_id in rv['all_dragons']:
-            d = self.dragons[d_id]
+            try:
+                d = self.dragons[d_id]
+            except KeyError:
+                print(rv['all_dragons'])
+                print(d_id)
+                print(self.to_ascii())
+                raise NotImplementedError
             surr_color = set()
             for x in d.neighbors:
                 surr_color.add(x.player)
@@ -585,6 +599,8 @@ class Dragon(object):
             raise NotImplementedError('Wrong player to connect to this dragon.')
 
         if not force and self.members and pos not in self.neighbors:
+            print(force, [(pos.x, pos.y) for pos in self.members], pos.x, pos.y, [(pos.x, pos.y) for pos in self.neighbors])
+            print(self.board.to_ascii())
             raise NotImplementedError('Cannot connect to this dragon.')
 
         if not self.player:

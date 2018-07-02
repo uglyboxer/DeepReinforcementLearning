@@ -84,7 +84,6 @@ while 1:
     print('ITERATION NUMBER ' + str(iteration))
     
     lg.logger_main.info('BEST PLAYER VERSION: %d', best_player_version)
-    print('BEST PLAYER VERSION ' + str(best_player_version))
 
     ######## SELF PLAY ########
     print('SELF PLAYING ' + str(config.EPISODES) + ' EPISODES...')
