@@ -23,6 +23,7 @@ class Board(object):
         self.captures = {1: 0, -1: 0}
         self.passes = {1: False, -1: False}
         self.history = deque([], maxlen=7)
+        self.zhash_history = deque([], maxlen=7)
         if state:
             self._generate_from_state(state)
         else:
@@ -30,7 +31,7 @@ class Board(object):
 
         self.binary = self._binary()
         self.id = self._convertStateToId()
-        self.allowedActions = self._allowedActions()
+        self.allowedActions = self._allowedActions() 
         self.isEndGame = self._checkForEndGame()
         self.value = self._getValue()
         self.score = self._getScore()
@@ -108,9 +109,9 @@ class Board(object):
         other_position = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
         for x, row in enumerate(self.positions):
             for y, val in enumerate(row):
-                if val.player == self.playerTurn:
+                if val.player == (-1) * self.playerTurn:  # this is inverted because we swith player before calling this
                     currentplayer_position[x][y] = 1
-                elif val.player == (-1) * self.playerTurn:
+                elif val.player == self.playerTurn:
                     other_position[x][y] = 1
 
         currentplayer_position = currentplayer_position.flatten()
@@ -131,6 +132,9 @@ class Board(object):
         position = np.append(currentplayer_position, other_position)
 
         _id = ''.join(map(str, position))
+
+        str_actions = ''.join(map(str, self._allowedActions()))
+        _id += str_actions
 
         return _id
 
@@ -207,9 +211,9 @@ class Board(object):
         self.passes = {1: False, -1: False}
         self.z_table.add(rv['zhash'])
         self.update_history()
-        self.id = self._convertStateToId()
         self.switch_player()
         self.allowedActions = self._allowedActions()
+        self.id = self._convertStateToId()
         return result
 
     def take_action(self, loc):
@@ -224,7 +228,6 @@ class Board(object):
         value = 0
         self.update_history()
         self.passes[self.playerTurn] = True
-        self.id = self._convertStateToId()
         self.switch_player()
         if self.passes[-1] and self.passes[1]:
             winner = self._score()
@@ -239,6 +242,7 @@ class Board(object):
         self.value = self._getValue()
         self.score = self._getScore()
         self.allowedActions = allowed_actions
+        self.id = self._convertStateToId()
         print(self.to_ascii())
 
         return value, done
@@ -598,7 +602,7 @@ class Dragon(object):
         if self.player and self.player != pos.player:
             raise NotImplementedError('Wrong player to connect to this dragon.')
 
-        if not force and self.members and pos not in self.neighbors:
+        if not force and self.members and not (pos in self.neighbors or pos in self.members):
             print(force, [(pos.x, pos.y) for pos in self.members], pos.x, pos.y, [(pos.x, pos.y) for pos in self.neighbors])
             print(self.board.to_ascii())
             raise NotImplementedError('Cannot connect to this dragon.')

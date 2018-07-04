@@ -97,7 +97,8 @@ class MCTS():
                     maxQU = Q + U
                     simulationAction = action
                     simulationEdge = edge
-
+            print('Player {} is playing {}'.format(currentNode.state.playerTurn, simulationAction))
+            print('out of {}'.format(currentNode.state.allowedActions))
             lg.logger_mcts.info('action with highest Q + U...%d', simulationAction)
             newState, value, done = currentNode.state.takeAction(simulationAction)  #the value of the newState from the POV of the new playerTurn
             currentNode = simulationEdge.outNode
