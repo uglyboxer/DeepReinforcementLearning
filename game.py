@@ -27,7 +27,6 @@ class Game:
         next_state, value, done = self.gameState.takeAction(action)
         self.gameState = next_state
         self.currentPlayer = -self.currentPlayer
-        print('players match: ', self.currentPlayer, self.gameState.playerTurn)
         info = None
         return (next_state, value, done, info)
 

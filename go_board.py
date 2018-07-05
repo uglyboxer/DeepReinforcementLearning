@@ -1,5 +1,5 @@
+import pickle
 from collections import deque
-from copy import deepcopy
 
 import numpy as np
 
@@ -64,9 +64,6 @@ class Board(object):
     def _checkForEndGame(self):
         score = 0
         if np.array(list(self.passes.values())).all():
-        #     score = self._score()
-
-        # if score == self.playerTurn:
             return 1
         return 0
 
@@ -76,7 +73,6 @@ class Board(object):
         score = 0
         if np.array(self.passes).all():
             score = self._score()
-            # print('score is ----------->', score)
             if score == -1 * self.playerTurn:
                 return (-1, -1, 1)
             else:
@@ -133,8 +129,8 @@ class Board(object):
 
         _id = ''.join(map(str, position))
 
-        str_actions = ''.join(map(str, self._allowedActions()))
-        _id += str_actions
+        str_actions = '-'.join(map(str, self._allowedActions()))
+        _id += '-' + str_actions
 
         return _id
 
@@ -243,12 +239,11 @@ class Board(object):
         self.score = self._getScore()
         self.allowedActions = allowed_actions
         self.id = self._convertStateToId()
-        print(self.to_ascii())
 
         return value, done
 
     def takeAction(self, flat_array_index):
-        newState = deepcopy(self)
+        newState = pickle.loads(pickle.dumps(self))
         if flat_array_index != self.PASS_INDEX:
             loc = (flat_array_index // self.board_size, flat_array_index % self.board_size)
             value, done = newState.take_action(loc)
@@ -298,7 +293,6 @@ class Board(object):
     def _allowedActions(self):
         legal = [(x * self.board_size) + y for x, y in self.allowed_plays(self.playerTurn)]
         legal.append(self.PASS_INDEX)
-        print(legal)
         return np.array(legal)
 
     def imagine_zobrist(self, pos, captures, player):
@@ -603,8 +597,6 @@ class Dragon(object):
             raise NotImplementedError('Wrong player to connect to this dragon.')
 
         if not force and self.members and not (pos in self.neighbors or pos in self.members):
-            print(force, [(pos.x, pos.y) for pos in self.members], pos.x, pos.y, [(pos.x, pos.y) for pos in self.neighbors])
-            print(self.board.to_ascii())
             raise NotImplementedError('Cannot connect to this dragon.')
 
         if not self.player:
