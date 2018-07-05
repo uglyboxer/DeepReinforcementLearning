@@ -313,12 +313,13 @@ class Board(object):
         Return:
             Position instance
         '''
-        x = tup[0]
-        y = tup[1]
-        if x < 0 or x > self.board_size or y < 0 or y > self.board_size:
-            raise NotImplementedError('Tuple outside of board size of {}'.format(self.board_size))
+        # x = tup[0]
+        # y = tup[1]
+        # if x < 0 or x > self.board_size or y < 0 or y > self.board_size:
+        #     raise NotImplementedError('Tuple outside of board size of {}'.format(self.board_size))
 
-        return self.positions[x][y]
+        return self.positions[tup[0]][tup[1]]
+        # return self.positions[x][y]
 
     def stitch_dragons(self, d1_id, d2_id):
         """
@@ -461,7 +462,9 @@ class Board(object):
                     d1.add_member(pos1)
                     rv['all_dragons'].add(d1.identifier)
                     for d in n_dragons[1:]:
-                        self.stitch_dragons(d1.identifier, d.identifier)
+                        other_id = d.identifier
+                        self.stitch_dragons(d1.identifier, other_id)
+                        rv['all_dragons'].discard(other_id)
                     dragon = d1
                 else:
                     dragon_id = self.create_new_dragon()
