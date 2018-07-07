@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import pickle
 
 from go_board import Board
 
@@ -36,6 +37,7 @@ class Game:
         currentBoard = state.history
         currentAV = actionValues
 
+        state_copy = pickle.loads(pickle.dumps(state)) 
         # currentBoard = np.array([
         #       currentBoard[6], currentBoard[5],currentBoard[4], currentBoard[3], currentBoard[2], currentBoard[1], currentBoard[0]
         #     , currentBoard[13], currentBoard[12],currentBoard[11], currentBoard[10], currentBoard[9], currentBoard[8], currentBoard[7]
@@ -54,7 +56,8 @@ class Game:
         #     , currentAV[41], currentAV[40],currentAV[39], currentAV[38], currentAV[37], currentAV[36], currentAV[35]
         #             ])
 
-        identities.append((Board(state.board_size, currentBoard, state.playerTurn), currentAV))
+        # identities.append((Board(state.board_size, currentBoard, state.playerTurn), currentAV))
+        identities.append((state_copy, currentAV))
 
         return identities
 
