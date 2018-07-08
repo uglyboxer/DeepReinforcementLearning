@@ -35,6 +35,7 @@ class Board(object):
         self.isEndGame = self._checkForEndGame()
         self.value = self._getValue()
         self.score = self._getScore()
+        self.newState = None
 
     @property
     def next_dragon(self):
@@ -52,15 +53,14 @@ class Board(object):
 
     def _initialize_history(self):
         
-        state = []
-        for row in self.positions:
-            row_vals = []
-            for pos in row:
-                row_vals.append(0)
-            state.append(row_vals)
-        for i in range(7):
-            self.history.append(((-1) ** i, state))
+        state = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
+        for i in range(14):
+            self.history.append(state)
 
+    def player_as_layer(self):
+        player_layer = np.array([np.ones(self.board_size, dtype=np.int) for z in range(self.board_size)])
+        return player_layer * self.playerTurn
+         
     def _checkForEndGame(self):
         score = 0
         if np.array(list(self.passes.values())).all():
@@ -134,46 +134,25 @@ class Board(object):
 
         return _id
 
-    def _generate_from_state(self, state):
-        '''
-        Assumes only valid histories passed in as state.  Otherwise False returns
-        from the act method would be treated as a pass.  Not ideal, but okay
-        until refactor time.
-
-        Args:
-            state  np.array  stack of 7 tuples (player, board positions 1's for b, -1's for w)
-
-        '''
-        self.history = state
-        try:
-            self.playerTurn = (-1) * state[6][0]
-        except IndexError:
-            raise NotImplementedError 
-        for idx, row in enumerate(state[6][1]):
-            for idy, player_val in enumerate(row):
-                # TODO does it matter if this is out of order?
-                if player_val == 0:
-                    continue
-                rv = self.act((idx, idy))
-        for _, ts in state:
-            zhash = self.zobrist.get_hash(ts)
-            self.z_table.add(zhash)
-
     def dump_state_example(self):
         current = np.ones((self.board_size, self.board_size)) * self.playerTurn
         history = list(self.history)
         history.append(current)
+        history.append(self.player_as_layer())
         return np.stack(history)
 
     def update_history(self):
-        state = []
-        for row in self.positions:
-            row_vals = []
-            for pos in row:
-                row_vals.append(pos.player)
-            state.append(row_vals)
+        player_one_state =  np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
+        player_neg_one_state = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)]) 
+        for idx, row in enumerate(self.positions):
+            for idy, pos in enumerate(row):
+                if pos.player == 1:
+                    player_one_state[idx][idy] = 1
+                elif pos.player == -1:
+                    player_neg_one_state[idx][idy] = 1
 
-        self.history.append((self.playerTurn, np.array(state)))
+        self.history.append(player_one_state)
+        self.history.append(player_neg_one_state)
 
     def act(self, loc):
         result = {'valid': True,
@@ -243,24 +222,24 @@ class Board(object):
         return value, done
 
     def takeAction(self, flat_array_index):
-        newState = pickle.loads(pickle.dumps(self))
+        self.newState = pickle.loads(pickle.dumps(self))
         if flat_array_index != self.PASS_INDEX:
             loc = (flat_array_index // self.board_size, flat_array_index % self.board_size)
-            value, done = newState.take_action(loc)
+            value, done = self.newState.take_action(loc)
         else:
-            value, done = newState.player_pass()
+            value, done = self.newState.player_pass()
 
-        if newState._checkForEndGame() == 1:
-            newState.value = newState._getValue()
-            newState.score = newState._getScore()
-            winner = newState._score()
-            if winner == newState.playerTurn:
+        if self.newState._checkForEndGame() == 1:
+            self.newState.value = self.newState._getValue()
+            self.newState.score = self.newState._getScore()
+            winner = self.newState._score()
+            if winner == self.newState.playerTurn:
                 value = 1
             else:
                 value = -1
             done = 1
 
-        return newState, value, done 
+        return self.newState, value, done 
 
     def add_up_score(self, player, dragons):
         for d in dragons:
