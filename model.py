@@ -231,6 +231,7 @@ class Residual_CNN(Gen_Model):
         ph = self.policy_head(x)
 
         model = Model(inputs=[main_input], outputs=[vh, ph])
+        print(model.summary())
         model.compile(loss={'value_head': 'mean_squared_error', 'policy_head': softmax_cross_entropy_with_logits},
             optimizer=SGD(lr=self.learning_rate, momentum = config.MOMENTUM),   
             loss_weights={'value_head': 0.5, 'policy_head': 0.5}    

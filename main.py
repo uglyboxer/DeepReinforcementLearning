@@ -89,7 +89,7 @@ while 1:
     print('SELF PLAYING ' + str(config.EPISODES) + ' EPISODES...')
     _, memory, _, _ = playMatches(best_player, best_player, config.EPISODES, lg.logger_main, turns_until_tau0 = config.TURNS_UNTIL_TAU0, memory = memory)
     print('\n')
-    
+    break 
     memory.clear_stmemory()
 
     if len(memory.ltmemory) >= config.MEMORY_SIZE:
