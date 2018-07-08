@@ -85,7 +85,7 @@ class Agent():
         pi, values = self.getAV(1)
         # ###pick the action
         action, value = self.chooseAction(pi, values, tau)
-
+        print('Acting: ', action, value)
         nextState, _, _ = state.takeAction(action)
 
         NN_value = -self.get_preds(nextState)[0]

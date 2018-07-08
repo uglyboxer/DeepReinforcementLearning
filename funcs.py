@@ -99,9 +99,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
 
             ### Do the action
             state, value, done, _ = env.step(action) #the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
-            
             env.gameState.render(logger)
-
             if done == 1: 
                 if memory != None:
                     #### If the game is finished, assign the values correctly to the game moves

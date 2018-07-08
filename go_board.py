@@ -22,12 +22,10 @@ class Board(object):
         self.action_space = self.set_action_space()
         self.captures = {1: 0, -1: 0}
         self.passes = {1: False, -1: False}
-        self.history = deque([], maxlen=7)
+        self.history = deque([], maxlen=14)
         self.zhash_history = deque([], maxlen=7)
-        if state:
-            self._generate_from_state(state)
-        else:
-            self._initialize_history()
+
+        self._initialize_history()
 
         self.binary = self._binary()
         self.id = self._convertStateToId()
@@ -135,9 +133,7 @@ class Board(object):
         return _id
 
     def dump_state_example(self):
-        current = np.ones((self.board_size, self.board_size)) * self.playerTurn
         history = list(self.history)
-        history.append(current)
         history.append(self.player_as_layer())
         return np.stack(history)
 
