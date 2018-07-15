@@ -27,7 +27,10 @@ class Board(object):
 
         self._initialize_history()
 
-        self.binary = self._binary()
+        # self.binary = self._binary()
+        self.player_one_state = None
+        self.player_neg_one_state = None
+        self.two_binary_boards()
         self.id = self._convertStateToId()
         self.allowedActions = self._allowedActions() 
         self.isEndGame = self._checkForEndGame()
@@ -52,7 +55,7 @@ class Board(object):
     def _initialize_history(self):
         
         state = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
-        for i in range(14):
+        for _ in range(14):
             self.history.append(state)
 
     def player_as_layer(self):
@@ -60,7 +63,6 @@ class Board(object):
         return player_layer * self.playerTurn
          
     def _checkForEndGame(self):
-        score = 0
         if np.array(list(self.passes.values())).all():
             return 1
         return 0
@@ -81,49 +83,33 @@ class Board(object):
         tmp = self.value
         return (tmp[1], tmp[2])
 
-    def _binary(self):
-        currentplayer_position = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
-        other_position = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
-        for x, row in enumerate(self.positions):
-            for y, val in enumerate(row):
-                if val.player == self.playerTurn:
-                    currentplayer_position[x][y] = 1
-                elif val.player == (-1) * self.playerTurn:
-                    other_position[x][y] = 1
-
-        currentplayer_position = currentplayer_position.flatten()
-        other_position = other_position.flatten()
-
-        position = np.append(currentplayer_position, other_position)
-
-        return position
-
+    def two_binary_boards(self):
+        self.player_one_state =  np.zeros((self.board_size, self.board_size))
+        self.player_neg_one_state = np.zeros((self.board_size, self.board_size)) 
+        for idx, row in enumerate(self.positions):
+            for idy, pos in enumerate(row):
+                if pos.player == 1:
+                    self.player_one_state[idx][idy] = 1
+                elif pos.player == -1:
+                    self.player_neg_one_state[idx][idy] = 1
+        
     def _convertStateToId(self):
-        currentplayer_position = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
-        other_position = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
-        for x, row in enumerate(self.positions):
-            for y, val in enumerate(row):
-                if val.player == (-1) * self.playerTurn:  # this is inverted because we swith player before calling this
-                    currentplayer_position[x][y] = 1
-                elif val.player == self.playerTurn:
-                    other_position[x][y] = 1
-
-        currentplayer_position = currentplayer_position.flatten()
-        other_position = other_position.flatten()
+        player_one = self.player_one_state.flatten()
+        player_neg_one = self.player_neg_one_state.flatten()
         if self.passes[self.playerTurn]:
-            currentplayer_position = np.append(currentplayer_position, 1)
-            other_position = np.append(other_position, 1)
+            player_one = np.append(player_one, 1)
+            player_neg_one = np.append(player_neg_one, 1)
         else:
-            currentplayer_position = np.append(currentplayer_position, 0)
-            other_position = np.append(other_position, 0)
+            player_one = np.append(player_one, 0)
+            player_neg_one = np.append(player_neg_one, 0)
         if self.passes[-1 * self.playerTurn]:
-            other_position = np.append(other_position, 1)
-            currentplayer_position = np.append(currentplayer_position, 1)
+            player_neg_one = np.append(player_neg_one, 1)
+            player_one = np.append(player_one, 1)
         else:
-            other_position = np.append(other_position, 0)
-            currentplayer_position = np.append(currentplayer_position, 0)
+            player_neg_one = np.append(player_neg_one, 0)
+            player_one = np.append(player_one, 0)
 
-        position = np.append(currentplayer_position, other_position)
+        position = np.append(player_one, player_neg_one)
 
         _id = ''.join(map(str, position))
 
@@ -138,17 +124,8 @@ class Board(object):
         return np.stack(history)
 
     def update_history(self):
-        player_one_state =  np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)])
-        player_neg_one_state = np.array([np.zeros(self.board_size, dtype=np.int) for z in range(self.board_size)]) 
-        for idx, row in enumerate(self.positions):
-            for idy, pos in enumerate(row):
-                if pos.player == 1:
-                    player_one_state[idx][idy] = 1
-                elif pos.player == -1:
-                    player_neg_one_state[idx][idy] = 1
-
-        self.history.append(player_one_state)
-        self.history.append(player_neg_one_state)
+        self.history.append(self.player_one_state)
+        self.history.append(self.player_neg_one_state)
 
     def act(self, loc):
         result = {'valid': True,
@@ -181,6 +158,7 @@ class Board(object):
 
         self.passes = {1: False, -1: False}
         self.z_table.add(rv['zhash'])
+        self.two_binary_boards()
         self.update_history()
         self.switch_player()
         self.allowedActions = self._allowedActions()
@@ -194,7 +172,7 @@ class Board(object):
         self.act(loc)
         return value, done
 
-    def player_pass(self):
+    def player_pass(self): 
         done = 0
         value = 0
         self.update_history()
@@ -288,13 +266,7 @@ class Board(object):
         Return:
             Position instance
         '''
-        # x = tup[0]
-        # y = tup[1]
-        # if x < 0 or x > self.board_size or y < 0 or y > self.board_size:
-        #     raise NotImplementedError('Tuple outside of board size of {}'.format(self.board_size))
-
         return self.positions[tup[0]][tup[1]]
-        # return self.positions[x][y]
 
     def stitch_dragons(self, d1_id, d2_id):
         """
@@ -338,11 +310,16 @@ class Board(object):
             for point in row:
                 fake_row.append(point.player)
             fake.append(fake_row)
-        fake[pos.x][pos.y] = player
+
+        player_one = self.player_one_state.flatten()
+        player_neg_one = self.player_neg_one_state.flatten()
+        fake = player_one + (-1 * player_neg_one)
+
+        fake[(self.board_size * pos.x) + pos.y] = player
 
         for captured_dragon in captures:
             for capture in captured_dragon.members:
-                fake[capture.x][capture.y] = 0
+                fake[(self.board_size * capture.x) + capture.y] = 0
         return fake
 
     def imagine_position(self, pos, player):

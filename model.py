@@ -25,6 +25,7 @@ class Gen_Model():
         self.learning_rate = learning_rate
         self.input_dim = input_dim
         self.output_dim = output_dim
+        self.model = None
 
     def predict(self, x):
         return self.model.predict(x)

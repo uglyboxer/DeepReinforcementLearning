@@ -1,9 +1,11 @@
+from datetime import datetime
+
 import numpy as np
 import random
 
 import loggers as lg
 
-from game import Game, GameState
+from game import Game
 from model import Residual_CNN
 
 from agent import Agent, User
@@ -78,6 +80,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
 
         env.gameState.render(logger)
 
+        start = datetime.now()
         while done == 0:
             turn = turn + 1
             #### Run the MCTS algo and return an action
@@ -136,5 +139,5 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
                 pts = state.score
                 points[players[state.playerTurn]['name']].append(pts[0])
                 points[players[-state.playerTurn]['name']].append(pts[1])
-
+        print('Episode took: ', datetime.now() - start)
     return (scores, memory, points, sp_scores)

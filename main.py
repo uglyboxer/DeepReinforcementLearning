@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # %matplotlib inline
+from datetime import datetime
 
 import numpy as np
 np.set_printoptions(suppress=True)
@@ -11,7 +12,7 @@ from importlib import reload
 
 from keras.utils import plot_model
 
-from game import Game, GameState
+from game import Game
 from agent import Agent
 from memory import Memory
 from model import Residual_CNN
@@ -76,7 +77,7 @@ best_player = Agent('best_player', env.state_size, env.action_size, config.MCTS_
 iteration = 0
 
 while 1:
-
+    start = datetime.now()
     iteration += 1
     reload(lg)
     reload(config)
@@ -90,7 +91,7 @@ while 1:
     _, memory, _, _ = playMatches(best_player, best_player, config.EPISODES, lg.logger_main, turns_until_tau0 = config.TURNS_UNTIL_TAU0, memory = memory)
     print('\n')
     memory.clear_stmemory()
-
+    print('play matches took: ', datetime.now() - start)
     if len(memory.ltmemory) >= config.MEMORY_SIZE:
 
         ######## RETRAINING ########
