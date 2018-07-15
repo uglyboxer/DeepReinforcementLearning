@@ -123,8 +123,8 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
                         sp_scores['nsp'] = sp_scores['nsp'] + 1
 
                 elif value == -1:
-                    logger.info('%s WINS!', players[-state.playerTurn]['name'])
-                    scores[players[-state.playerTurn]['name']] = scores[players[-state.playerTurn]['name']] + 1
+                    logger.info('%s WINS!', players[-1 * state.playerTurn]['name'])
+                    scores[players[-1 * state.playerTurn]['name']] = scores[players[-1 * state.playerTurn]['name']] + 1
                
                     if state.playerTurn == 1: 
                         sp_scores['nsp'] = sp_scores['nsp'] + 1
@@ -138,6 +138,6 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
 
                 pts = state.score
                 points[players[state.playerTurn]['name']].append(pts[0])
-                points[players[-state.playerTurn]['name']].append(pts[1])
+                points[players[-1 * state.playerTurn]['name']].append(pts[1])
         print('Episode took: ', datetime.now() - start)
     return (scores, memory, points, sp_scores)

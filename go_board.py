@@ -304,13 +304,6 @@ class Board(object):
         return 1
 
     def fake_board(self, pos, captures, player):
-        fake = []
-        for row in self.positions:
-            fake_row = []
-            for point in row:
-                fake_row.append(point.player)
-            fake.append(fake_row)
-
         player_one = self.player_one_state.flatten()
         player_neg_one = self.player_neg_one_state.flatten()
         fake = player_one + (-1 * player_neg_one)

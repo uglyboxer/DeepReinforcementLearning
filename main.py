@@ -141,3 +141,4 @@ while 1:
 
     else:
         print('MEMORY SIZE: ' + str(len(memory.ltmemory)))
+    break
