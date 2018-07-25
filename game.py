@@ -26,7 +26,7 @@ class Game:
         return self.gameState
 
     def step(self, action):
-        next_state, value, done = self.gameState.apply_move(action)
+        next_state, value, done = self.gameState.takeAction(action)
         self.gameState = next_state
         self.currentPlayer = -self.currentPlayer
         info = None
