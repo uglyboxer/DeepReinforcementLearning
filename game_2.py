@@ -323,7 +323,25 @@ class GameState():
         self.allowedActions = self.legal_indices()
         self.id = self._convertStateToId()
         self.newState = None
-        self.pieces = {'1': 'X', '0': '-', '-1': 'O'}
+        self.pieces = {1: 'X', 0: '-', -1: 'O'}
+        self.value = self._getValue()
+        self.score = self._getScore()
+
+    def _getValue(self):
+        # This is the value of the state for the current player
+        # i.e. if the previous player played a winning move, you lose
+        score = 0
+        if self.is_over():
+            score = int(self.winner())
+            if score == -1 * int(self.playerTurn):
+                return (-1, -1, 1)
+            else:
+                return (-1, 1, -1)
+        return (0, 0, 0)
+
+    def _getScore(self):
+        tmp = self.value
+        return (tmp[1], tmp[2])
 
     def _convertStateToId(self):
         lines = []
