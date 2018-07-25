@@ -1,5 +1,5 @@
 import copy
-
+import pickle
 import numpy as np
 
 import zobrist_2 as zobrist
@@ -97,7 +97,8 @@ class GoString():
             self.liberties == other.liberties
 
     def __deepcopy__(self, memodict={}):
-        return GoString(self.color, self.stones, copy.deepcopy(self.liberties))
+        return GoString(self.color, self.stones, pickle.loads(pickle.dumps(self.liberties)))
+        # return GoString(self.color, self.stones, copy.deepcopy(self.liberties))
 
 
 class Board():
@@ -355,7 +356,18 @@ class GameState():
 
         str_actions = '-'.join(map(str, self.allowedActions))
         _id += '-' + str_actions
-
+        if self.previous_state and self.previous_state.last_move and self.previous_state.last_move.is_pass:
+            _id += '1'
+        else:
+            _id += '0'
+        if self.last_move and self.last_move.is_pass:
+            _id += '1'
+        else:
+            _id += '0'
+        if self.last_move and self.last_move.is_resign:
+            _id += '1'
+        else:
+            _id += '0'
         return _id
 
     def dump_state_example(self):
@@ -371,7 +383,6 @@ class GameState():
         return np.array(lines).reshape(1, self.board_size, self.board_size)
 
     def apply_move(self, move):
-        print(move)
         """Return the new GameState after applying the move."""
         if move.is_play:
             next_board = copy.deepcopy(self.board)
@@ -389,6 +400,8 @@ class GameState():
     def takeAction(self, index):
         done = 0
         value = 0
+        if self.is_over():
+            return self, int(self.winner()), 1
         # TODO Add done check here !1
         if index == self.PASS_INDEX:
             move = Move.pass_turn()
@@ -468,8 +481,6 @@ class GameState():
     
     def legal_indices(self):
         moves = self.legal_moves()
-        for x in moves:
-            print(x.point, '_<')
         indices = [(x.point.row - 1) * self.board_size + x.point.col - 1 for x in moves if x.point]
         indices.append(self.PASS_INDEX)
         indices.append(self.RESIGN_INDEX)

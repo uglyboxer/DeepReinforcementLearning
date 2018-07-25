@@ -19,8 +19,6 @@ class User():
         self.action_size = action_size
 
     def act(self, state, tau):
-        print(state.allowedActions)
-        print(state.to_ascii())
         action = input('Enter your chosen action: ')
         action = int(action)
         pi = np.zeros(self.action_size)
@@ -85,7 +83,6 @@ class Agent():
         pi, values = self.getAV(1)
         # ###pick the action
         action, value = self.chooseAction(pi, values, tau)
-        print('Acting: ', action, value)
         nextState, _, _ = state.takeAction(action)
 
         NN_value = -self.get_preds(nextState)[0]
@@ -100,17 +97,14 @@ class Agent():
     def get_preds(self, state):
         # predict the leaf
         inputToModel = np.array([self.model.convertToModelInput(state)])
-        print('>>',inputToModel)
         preds = self.model.predict(inputToModel)
         value_array = preds[0]
         logits_array = preds[1]
         value = value_array[0]
 
         logits = logits_array[0]
-        print('logits ', logits)
 
         allowedActions = state.allowedActions
-        print('acts ',allowedActions)
 
         mask = np.ones(logits.shape, dtype=bool)
         mask[allowedActions] = False

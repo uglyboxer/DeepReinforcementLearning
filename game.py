@@ -9,7 +9,7 @@ class Game:
 
     def __init__(self):     
         self.currentPlayer = 1
-        self.board_size = 4
+        self.board_size = 9
         self.board = Board(self.board_size, self.board_size)
         self.gameState = GameState(self.board, self.currentPlayer, None, None) 
         self.actionSpace = self.board.action_space
