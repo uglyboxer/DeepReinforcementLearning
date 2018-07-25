@@ -55,7 +55,7 @@ class Agent():
     def simulate(self):
         lg.logger_mcts.info('ROOT NODE...%s', self.mcts.root.state.id)
         self.mcts.root.state.render(lg.logger_mcts)
-        lg.logger_mcts.info('CURRENT PLAYER...%d', self.mcts.root.state.playerTurn)
+        lg.logger_mcts.info('CURRENT PLAYER...%d', self.mcts.root.state.playerTurn.value)
 
         # #### MOVE THE LEAF NODE
         leaf, value, done, breadcrumbs = self.mcts.moveToLeaf()
@@ -100,15 +100,17 @@ class Agent():
     def get_preds(self, state):
         # predict the leaf
         inputToModel = np.array([self.model.convertToModelInput(state)])
-
+        print('>>',inputToModel)
         preds = self.model.predict(inputToModel)
         value_array = preds[0]
         logits_array = preds[1]
         value = value_array[0]
 
         logits = logits_array[0]
+        print('logits ', logits)
 
         allowedActions = state.allowedActions
+        print('acts ',allowedActions)
 
         mask = np.ones(logits.shape, dtype=bool)
         mask[allowedActions] = False
@@ -125,7 +127,7 @@ class Agent():
         lg.logger_mcts.info('------EVALUATING LEAF------')
         if done == 0:
             value, probs, allowedActions = self.get_preds(leaf.state)
-            lg.logger_mcts.info('PREDICTED VALUE FOR %d: %f', leaf.state.playerTurn, value)
+            lg.logger_mcts.info('PREDICTED VALUE FOR %d: %f', leaf.state.playerTurn.value, value)
 
             probs = probs[allowedActions]
 
@@ -142,7 +144,7 @@ class Agent():
                 leaf.edges.append((action, newEdge))
 
         else:
-            lg.logger_mcts.info('GAME VALUE FOR %d: %f', leaf.playerTurn, value)
+            lg.logger_mcts.info('GAME VALUE FOR %d: %f', leaf.playerTurn.value, value)
 
         return ((value, breadcrumbs))
 

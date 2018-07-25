@@ -10,6 +10,8 @@ from model import Residual_CNN
 
 from agent import Agent, User
 
+from gotypes import Player
+
 import config
 
 def playMatchesBetweenVersions(env, run_version, player1version, player2version, EPISODES, logger, turns_until_tau0, goes_first = 0):
@@ -67,13 +69,13 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory = N
             player1Starts = goes_first
 
         if player1Starts == 1:
-            players = {1:{"agent": player1, "name":player1.name}
-                    , -1: {"agent": player2, "name":player2.name}
+            players = {Player.black: {"agent": player1, "name":player1.name}
+                    ,  Player.white: {"agent": player2, "name":player2.name}
                     }
             logger.info(player1.name + ' plays as X')
         else:
-            players = {1:{"agent": player2, "name":player2.name}
-                    , -1: {"agent": player1, "name":player1.name}
+            players = {Player.black: {"agent": player2, "name":player2.name}
+                    ,  Player.white: {"agent": player1, "name":player1.name}
                     }
             logger.info(player2.name + ' plays as X')
             logger.info('--------------')

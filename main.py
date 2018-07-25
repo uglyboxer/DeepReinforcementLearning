@@ -48,8 +48,8 @@ else:
 ######## LOAD MODEL IF NECESSARY ########
 
 # create an untrained neural network objects from the config file
-current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (15,) + env.grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
-best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (15,) + env.grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
+current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (1, ) + env.grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
+best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (1, ) + env.grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
 
 #If loading an existing neural netwrok, set the weights from that model
 if initialise.INITIAL_MODEL_VERSION != None:

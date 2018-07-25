@@ -120,7 +120,7 @@ class Residual_CNN(Gen_Model):
         x = Conv2D(
         filters = filters
         , kernel_size = kernel_size
-        , data_format="channels_first"
+        # , data_format="channels_first"
         , padding = 'same'
         , use_bias=False
         , activation='linear'
@@ -140,7 +140,7 @@ class Residual_CNN(Gen_Model):
         x = Conv2D(
         filters = filters
         , kernel_size = kernel_size
-        , data_format="channels_first"
+        # , data_format="channels_first"
         , padding = 'same'
         , use_bias=False
         , activation='linear'
@@ -157,7 +157,7 @@ class Residual_CNN(Gen_Model):
         x = Conv2D(
         filters = 1
         , kernel_size = (1,1)
-        , data_format="channels_first"
+        # , data_format="channels_first"
         , padding = 'same'
         , use_bias=False
         , activation='linear'
@@ -196,7 +196,7 @@ class Residual_CNN(Gen_Model):
         x = Conv2D(
         filters = 2
         , kernel_size = (1,1)
-        , data_format="channels_first"
+        # , data_format="channels_first"
         , padding = 'same'
         , use_bias=False
         , activation='linear'

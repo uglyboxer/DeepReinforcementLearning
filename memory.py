@@ -11,7 +11,7 @@ class Memory:
 
     def commit_stmemory(self, identities, state, actionValues):
         for r in identities(state, actionValues):
-            self.stmemory.append({'board': r[0].history,
+            self.stmemory.append({'board': r[0].dump_state_example(),
                                   'state': r[0],
                                   'id': r[0].id,
                                   'AV': r[1],
