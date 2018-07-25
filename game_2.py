@@ -371,6 +371,7 @@ class GameState():
         return np.array(lines).reshape(1, self.board_size, self.board_size)
 
     def apply_move(self, move):
+        print(move)
         """Return the new GameState after applying the move."""
         if move.is_play:
             next_board = copy.deepcopy(self.board)
