@@ -66,42 +66,44 @@ class Gen_Model():
                 weights = x[0]
                 s = weights.shape
 
-                fig = plt.figure(figsize=(s[2], s[3]))  # width, height in inches
+                # fig = plt.figure(figsize=(s[2], s[3]))  # width, height in inches
                 channel = 0
                 filter = 0
                 for i in range(s[2] * s[3]):
 
-                    sub = fig.add_subplot(s[3], s[2], i + 1)
-                    sub.imshow(weights[:,:,channel,filter], cmap='coolwarm', clim=(-1, 1),aspect="auto")
+                    # sub = fig.add_subplot(s[3], s[2], i + 1)
+                    # sub.imshow(weights[:,:,channel,filter], cmap='coolwarm', clim=(-1, 1),aspect="auto")
                     channel = (channel + 1) % s[2]
                     filter = (filter + 1) % s[3]
 
             except:
+                pass
     
-                try:
-                    fig = plt.figure(figsize=(3, len(x)))  # width, height in inches
-                    for i in range(len(x)):
-                        sub = fig.add_subplot(len(x), 1, i + 1)
-                        if i == 0:
-                            clim = (0,2)
-                        else:
-                            clim = (0, 2)
-                        sub.imshow([x[i]], cmap='coolwarm', clim=clim,aspect="auto")
+            #     try:
+            #         # fig = plt.figure(figsize=(3, len(x)))  # width, height in inches
+            #         for i in range(len(x)):
+            #             # sub = fig.add_subplot(len(x), 1, i + 1)
+            #             if i == 0:
+            #                 clim = (0,2)
+            #             else:
+            #                 clim = (0, 2)
+            #             # sub.imshow([x[i]], cmap='coolwarm', clim=clim,aspect="auto")
                         
-                    plt.show()
+            #         # plt.show()
 
-                except:
-                    try:
-                        fig = plt.figure(figsize=(3, 3))  # width, height in inches
-                        sub = fig.add_subplot(1, 1, 1)
-                        sub.imshow(x[0], cmap='coolwarm', clim=(-1, 1),aspect="auto")
+            #     except:
+            #         pass
+            #         # try:
+            #         #     # fig = plt.figure(figsize=(3, 3))  # width, height in inches
+            #         #     # sub = fig.add_subplot(1, 1, 1)
+            #         #     # sub.imshow(x[0], cmap='coolwarm', clim=(-1, 1),aspect="auto")
                         
-                        plt.show()
+            #         #     # plt.show()
 
-                    except:
-                        pass
+            #         # except:
+            #         #     pass
 
-            plt.show()
+            # # plt.show()
                 
         lg.logger_model.info('------------------')
 

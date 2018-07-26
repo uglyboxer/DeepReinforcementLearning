@@ -192,7 +192,7 @@ class Agent():
         display.display(pl.gcf())
         pl.gcf().clear()
         time.sleep(1.0)
-
+        
         self.model.printWeightAverages()
 
     def predict(self, inputToModel):
