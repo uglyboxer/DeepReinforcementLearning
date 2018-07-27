@@ -415,7 +415,7 @@ class GameState():
         newState = self.apply_move(move)
         if newState.is_over():
             done = 1
-            value = self.winner() or 0
+            value = newState.winner() or 0
         return newState, int(value), done
 
     @classmethod
