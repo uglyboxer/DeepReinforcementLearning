@@ -28,7 +28,7 @@ class Game:
     def step(self, action):
         next_state, value, done = self.gameState.takeAction(action)
         self.gameState = next_state
-        self.currentPlayer = -self.currentPlayer
+        self.currentPlayer = int(next_state.playerTurn)
         info = None
         return (next_state, value, done, info)
 

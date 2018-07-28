@@ -1,7 +1,11 @@
 #### SELF PLAY
 EPISODES = 30 
 MCTS_SIMS = 20
-MEMORY_SIZE = 10000
+MEMORY_SIZE = 30000
+
+# EPISODES = 10
+# MCTS_SIMS = 5 
+# MEMORY_SIZE = 100
 
 TURNS_UNTIL_TAU0 = 10  # turn on which it starts playing deterministically
 CPUCT = 1
@@ -15,7 +19,7 @@ EPOCHS = 1
 REG_CONST = 0.0001
 LEARNING_RATE = 0.1
 MOMENTUM = 0.9
-TRAINING_LOOPS = 10
+TRAINING_LOOPS = 50
 
 HIDDEN_CNN_LAYERS = [
     {'filters': 75, 'kernel_size': (2, 2)},

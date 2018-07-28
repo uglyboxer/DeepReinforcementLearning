@@ -16,10 +16,10 @@ class Player(enum.Enum):
     white = 2
 
     def __str__(self):
-        return str(self.value * 2 - 3)
+        return str(-1 * (self.value * 2 - 3))
     
     def __int__(self):
-        return self.value * 2 - 3
+        return -1 * (self.value * 2 - 3)
         
     @property
     def other(self):

@@ -26,7 +26,7 @@ class Edge():
         self.id = inNode.state.id + '|' + outNode.state.id
         self.inNode = inNode
         self.outNode = outNode
-        self.playerTurn = inNode.state.playerTurn
+        self.playerTurn = int(inNode.state.playerTurn)
         self.action = action
 
         self.stats = {
@@ -108,7 +108,7 @@ class MCTS():
 
     def backFill(self, leaf, value, breadcrumbs):
         lg.logger_mcts.info('------DOING BACKFILL------')
-        currentPlayer = leaf.state.playerTurn
+        currentPlayer = int(leaf.state.playerTurn)
         for edge in breadcrumbs:
             playerTurn = edge.playerTurn
             if playerTurn == currentPlayer:

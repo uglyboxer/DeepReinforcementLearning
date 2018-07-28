@@ -401,8 +401,8 @@ class GameState():
         done = 0
         value = 0
         if self.is_over():
+            # TODO this value is wrong I think, but code doesn't come here, so ... 
             return self, int(self.winner()), 1
-        # TODO Add done check here !1
         if index == self.PASS_INDEX:
             move = Move.pass_turn()
         elif index == self.RESIGN_INDEX:
@@ -411,11 +411,14 @@ class GameState():
             x, y = self.index_to_loc(index)
             point = Point(row=x, col=y)
             move = Move.play(point)
-        # raise NotImplementedError('fix values below')
         newState = self.apply_move(move)
         if newState.is_over():
             done = 1
-            value = newState.winner() or 0
+            winner_num = newState.winner() or 0
+            if int(winner_num) == int(newState.playerTurn):
+                value = 1
+            else:
+                value = -1
         return newState, int(value), done
 
     @classmethod
@@ -445,10 +448,6 @@ class GameState():
         return next_situation in self.previous_states
 
     def is_valid_move(self, move):
-        if self.is_over():
-            return False
-        if move.is_pass or move.is_resign:
-            return True
         return (
             self.board.get(move.point) is None and
             not self.is_move_self_capture(self.playerTurn, move) and
@@ -467,16 +466,12 @@ class GameState():
     def legal_moves(self):
         if self.is_over():
             return []
-        moves = []
+        moves = [Move.pass_turn(), Move.resign()]
         for row in range(1, self.board.num_rows + 1):
             for col in range(1, self.board.num_cols + 1):
                 move = Move.play(Point(row, col))
                 if self.is_valid_move(move):
                     moves.append(move)
-        # These two moves are always legal.
-        moves.append(Move.pass_turn())
-        moves.append(Move.resign())
-
         return moves
     
     def legal_indices(self):
