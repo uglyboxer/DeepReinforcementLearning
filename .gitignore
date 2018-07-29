@@ -113,3 +113,7 @@ run/
 .DS_Store
 initialise.sublime-workspace
 todos.txt
+.vscode
+drl.code-workspace
+DeepReinforcementLearning.sublime-workspace
+.gitignore
