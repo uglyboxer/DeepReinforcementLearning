@@ -476,9 +476,8 @@ class GameState():
     
     def legal_indices(self):
         moves = self.legal_moves()
-        indices = [(x.point.row - 1) * self.board_size + x.point.col - 1 for x in moves if x.point]
-        indices.append(self.PASS_INDEX)
-        indices.append(self.RESIGN_INDEX)
+        indices = [self.PASS_INDEX, self.RESIGN_INDEX]
+        indices += [(x.point.row - 1) * self.board_size + x.point.col - 1 for x in moves if x.point]
         return np.array(indices)
 
     def winner(self):
