@@ -1,7 +1,7 @@
 #### SELF PLAY
-EPISODES = 30 
+EPISODES = 10 
 MCTS_SIMS = 10
-MEMORY_SIZE = 30000
+MEMORY_SIZE = 300
 
 # EPISODES = 10
 # MCTS_SIMS = 5 
@@ -15,19 +15,19 @@ ALPHA = 0.8
 
 #### RETRAINING
 BATCH_SIZE = 256
-EPOCHS = 30
+EPOCHS = 20
 REG_CONST = 0.0001
 LEARNING_RATE = 0.1
 MOMENTUM = 0.9
-TRAINING_LOOPS = 50
+TRAINING_LOOPS = 20
 
 HIDDEN_CNN_LAYERS = [
-    {'filters': 75, 'kernel_size': (2, 2)},
-    {'filters': 75, 'kernel_size': (2, 2)},
-    {'filters': 75, 'kernel_size': (2, 2)},
-    {'filters': 75, 'kernel_size': (2, 2)},
-    {'filters': 75, 'kernel_size': (2, 2)},
-    {'filters': 75, 'kernel_size': (2, 2)}
+    {'filters': 75, 'kernel_size': (3, 3)},
+    {'filters': 75, 'kernel_size': (3, 3)},
+    {'filters': 75, 'kernel_size': (3, 3)},
+    {'filters': 75, 'kernel_size': (3, 3)},
+    {'filters': 75, 'kernel_size': (3, 3)},
+    {'filters': 75, 'kernel_size': (3, 3)}
 ]
 
 #### EVALUATION
